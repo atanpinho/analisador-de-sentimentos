@@ -16,7 +16,7 @@ def home():
         resposta_ia = classificador(frase_digitada)
         rotulo = resposta_ia[0]['label']
         certeza = resposta_ia[0]['score'] * 100
-        resultado_tela = f"Análise: {rotulo} ({certeza:.2f}% de certeza)"        
+        resultado_tela = f"Análise: {rotulo} ({certeza:.2f})% de certeza"        
     return render_template("index.html", resultado=resultado_tela, frase=frase_digitada)
     
 if __name__ == "__main__":
