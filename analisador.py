@@ -13,14 +13,13 @@ def home():
     resultado_tela = ""
     
     if request.method == "POST":
-        frase_digitada = request.form.get("frase")
+        frase_digitada = request.form.get("Frase")
         
         if frase_digitada:
-            # Importa e cria o analisador APENAS aqui dentro, quando o botão é clicado!
-            # Isso faz o site dar o status LIVE instantaneamente no Render.
             from pysentimiento import create_analyzer
             classificador = create_analyzer(task="sentiment", lang="pt")
             
+            # CORRIGIDO: Agora usa exatamente frase_digitada com o 'g'
             analise = classificador.predict(frase_digitada)
             rotulo = analise.output
             
