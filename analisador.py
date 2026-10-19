@@ -35,4 +35,6 @@ def home():
     return render_template("index.html", resultado=resultado_tela, frase=frase_digitada)
 
 if __name__ == "__main__":
+    # Garante o funcionamento local na porta 5000 padrão
     app.run(debug=True)
+
