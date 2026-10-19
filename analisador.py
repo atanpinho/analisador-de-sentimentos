@@ -13,19 +13,19 @@ def home():
     resultado_tela = ""
     
     if request.method == "POST":
-        frase_digitada = request.form.get("Frase")
+        # ALINHADO: Lendo 'frase' em minúsculo para casar com o seu HTML
+        frase_digitada = request.form.get("frase")
         
         if frase_digitada:
             from pysentimiento import create_analyzer
             classificador = create_analyzer(task="sentiment", lang="pt")
             
-            # CORRIGIDO: Agora usa exatamente frase_digitada com o 'g'
             analise = classificador.predict(frase_digitada)
-            rotulo = analise.output
+            rotulo = analise.output.lower()
             
-            if rotulo == "POS":
+            if rotulo == "pos":
                 resultado_tela = f"Análise: Positiva ({analise.probas['POS'] * 100:.2f}%)"
-            elif rotulo == "NEG":
+            elif rotulo == "neg":
                 resultado_tela = f"Análise: Negativa ({analise.probas['NEG'] * 100:.2f}%)"
             else:
                 resultado_tela = f"Análise: Neutra ({analise.probas['NEU'] * 100:.2f}%)"
