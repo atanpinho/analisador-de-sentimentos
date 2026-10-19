@@ -1,37 +1,38 @@
 from flask import Flask, render_template, request
-import os
+from transformers import pipeline
 
 app = Flask(__name__)
 
-@app.route("/health")
-def health():
-    return "OK", 200
+# O SEGREDO: Carrega o cérebro da IA no TOPO do arquivo (Roda uma única vez no boot)
+# Usando o modelo otimizado e leve em português para não estourar os 512MB de RAM
+classificador = pipeline(
+    "sentiment-analysis", 
+    model="pysentimiento/bertweet-pt-sentiment",
+    low_cpu_mem_usage=True  # Instrução para o Python economizar memória RAM na nuvem
+)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
     frase_digitada = ""
     resultado_tela = ""
-    
+
     if request.method == "POST":
-        # ALINHADO: Lendo 'frase' em minúsculo para casar com o seu HTML
+        # Captura o texto que veio da caixinha "frase" do HTML
         frase_digitada = request.form.get("frase")
         
         if frase_digitada:
-            from pysentimiento import create_analyzer
-            classificador = create_analyzer(task="sentiment", lang="pt")
+            # Passando o texto pelo cérebro da Inteligência Artificial
+            resposta_ia = classificador(frase_digitada)
             
-            analise = classificador.predict(frase_digitada)
-            rotulo = analise.output.lower()
+            # Extraindo os dados brutos da memória RAM
+            rotulo = resposta_ia[0]['label']
+            certeza = resposta_ia[0]['score'] * 100
             
-            if rotulo == "pos":
-                resultado_tela = f"Análise: Positiva ({analise.probas['POS'] * 100:.2f}%)"
-            elif rotulo == "neg":
-                resultado_tela = f"Análise: Negativa ({analise.probas['NEG'] * 100:.2f}%)"
-            else:
-                resultado_tela = f"Análise: Neutra ({analise.probas['NEU'] * 100:.2f}%)"
-                
+            # Montando a f-string cirúrgica que será exibida na tela
+            resultado_tela = f"Análise: {rotulo} ({certeza:.2f}%) de certeza"
+
+    # Injetando as variáveis vivas diretamente para dentro do HTML
     return render_template("index.html", resultado=resultado_tela, frase=frase_digitada)
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(debug=True)
